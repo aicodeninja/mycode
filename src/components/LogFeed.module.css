@@ -1,0 +1,79 @@
+.wrap {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  animation: fade-in-up 0.2s ease forwards;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-muted);
+}
+
+.title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.count {
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: var(--text-faint);
+}
+
+.feed {
+  max-height: 160px;
+  overflow-y: auto;
+  padding: 8px 0;
+}
+
+.line {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 4px 14px;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  line-height: 1.6;
+  transition: background 0.1s;
+}
+
+.line:hover {
+  background: var(--bg-muted);
+}
+
+.icon {
+  flex-shrink: 0;
+  width: 12px;
+  text-align: center;
+}
+
+.text {
+  color: var(--text-secondary);
+}
+
+/* Type colours */
+.logInfo .icon { color: #818cf8; }
+.logInfo .text { color: #4b5563; }
+
+.logOk .icon   { color: var(--green); }
+.logOk .text   { color: #166534; font-weight: 500; }
+
+.logWarn .icon { color: var(--amber); }
+.logWarn .text { color: #92400e; }
+
+.logErr .icon  { color: var(--red); }
+.logErr .text  { color: #991b1b; }
+
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}

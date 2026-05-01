@@ -1,0 +1,178 @@
+.stepper {
+  padding: 20px 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.stepWrap {
+  display: flex;
+  flex-direction: column;
+}
+
+.step {
+  display: flex;
+  gap: 0;
+  align-items: flex-start;
+  background: transparent;
+  border: none;
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
+  border-left: 2px solid transparent;
+  transition: border-color 0.15s, background 0.15s;
+  padding: 10px 20px 0 18px;
+}
+
+.step:hover {
+  background: #f9fafb;
+}
+
+.stepSel {
+  border-left-color: var(--accent) !important;
+  background: #f5f5ff;
+}
+
+.stepSel:hover {
+  background: #f0f0ff;
+}
+
+.stepDone {
+  border-left-color: transparent;
+}
+
+/* Left column: dot + vertical line */
+.leftCol {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+  margin-right: 12px;
+  padding-bottom: 10px;
+}
+
+/* Dot */
+.dot {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background: var(--bg-surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.25s;
+  position: relative;
+  z-index: 1;
+}
+
+.dot_running {
+  border-color: var(--accent);
+  background: #eef2ff;
+  color: var(--accent);
+}
+
+.dot_done {
+  border-color: var(--green);
+  background: #f0fdf4;
+  color: var(--green);
+}
+
+.dotNum {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-faint);
+  font-family: var(--font-mono);
+}
+
+.dotSpinner {
+  width: 10px;
+  height: 10px;
+  border: 2px solid transparent;
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Vertical connector line */
+.vline {
+  width: 2px;
+  flex: 1;
+  min-height: 24px;
+  background: var(--border);
+  margin: 2px 0;
+  transition: background 0.4s;
+}
+
+.vlineDone {
+  background: #86efac;
+}
+
+/* Step content */
+.content {
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 10px;
+  min-height: 60px;
+}
+
+.stepNum {
+  font-size: 10px;
+  color: var(--text-faint);
+  font-family: var(--font-mono);
+  margin-bottom: 3px;
+}
+
+.stepName {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  transition: color 0.15s;
+  margin-bottom: 2px;
+}
+
+.step:hover .stepName,
+.stepSel .stepName {
+  color: var(--accent);
+}
+
+.stepDone .stepName {
+  color: var(--text-primary);
+}
+
+.stepDesc {
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.4;
+  margin-bottom: 7px;
+}
+
+/* Badge */
+.badge {
+  font-size: 10px;
+  font-weight: 500;
+  padding: 2px 9px;
+  border-radius: 20px;
+  display: inline-block;
+  width: fit-content;
+  transition: all 0.2s;
+}
+
+.badge_idle {
+  background: var(--bg-tag-idle);
+  color: var(--tag-idle-text);
+}
+
+.badge_running {
+  background: var(--bg-tag-run);
+  color: var(--tag-run-text);
+}
+
+.badge_done {
+  background: var(--bg-tag-done);
+  color: var(--tag-done-text);
+}
