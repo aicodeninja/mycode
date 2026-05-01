@@ -2,7 +2,7 @@
   "name": "pipeline-ui",
   "private": true,
   "version": "1.0.0",
-  "description": "Postpay to Prepay AI Pipeline Dashboard — Design 3 (Stepper + Detail Panel)",
+  "description": "concept1 to concept AI Pipeline Dashboard — Design 3 (Stepper + Detail Panel)",
   "type": "module",
   "scripts": {
     "dev": "vite",

@@ -1,4 +1,4 @@
-# Postpay → Prepay · AI Pipeline UI
+# concept1 → concept · AI Pipeline UI
 
 Design 3 — **Stepper + Detail Panel** — Production React codebase.
 

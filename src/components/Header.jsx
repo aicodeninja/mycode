@@ -22,7 +22,7 @@ export default function Header({
       <div className={styles.left}>
         <div className={styles.iconWrap}>🔄</div>
         <div className={styles.titleBlock}>
-          <h1 className={styles.title}>Postpay → Prepay · AI Pipeline</h1>
+          <h1 className={styles.title}>concept1 → concept · AI Pipeline</h1>
           <p className={styles.subtitle}>SAS MIGRATION · WGS TARGET SCHEMA · 4-AGENT ORCHESTRATION</p>
         </div>
       </div>
