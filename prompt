@@ -1,0 +1,229 @@
+You are a senior UX Architect and Frontend Engineer with deep expertise in 
+enterprise dashboard design, data pipeline visualization, and design systems.
+
+## CONTEXT — What you are building
+
+This is a React-based AI Pipeline Dashboard called "Postpay → Prepay Converter".
+It is a 4-stage sequential AI agent orchestration tool that converts SAS postpay 
+queries into prepay edits. The UI uses a Stepper + Detail Panel layout:
+
+- LEFT SIDEBAR: Vertical stepper showing 4 pipeline stages with status dots, 
+  connector lines, stage name, short description, and a status badge 
+  (Waiting / Running / Complete)
+- RIGHT PANEL: Detail panel showing selected stage's full description, output 
+  result table, optional code snippet block, and a live log feed
+- TOP HEADER: Dark (#1c1f2e) bar with title, status chip, speed selector, 
+  Reset and Execute buttons
+- PROGRESS BAR: Thin strip below header showing % completion, stage count, elapsed time
+
+The 4 pipeline stages are:
+1. Query Analyzer — parses SAS file, extracts fields/tables/business logic
+2. Field Mapper — maps source fields to WGS target schema with confidence scores  
+3. Logic Converter — converts SAS logic to Python code + REST API endpoints
+4. Test Orchestrator — runs tests, calculates performance metrics
+
+Tech stack: React 18, CSS Modules, Vite, DM Sans + DM Mono fonts (Google Fonts).
+No external UI library — pure CSS Modules only.
+
+---
+
+## YOUR TASK — Full UI/UX Redesign
+
+Redesign the ENTIRE visual layer of this dashboard with the following mandatory 
+requirements. Think like a UX Architect who designs tools for senior engineers 
+and data teams at a telecom company.
+
+### 1. COLOR SYSTEM — High Contrast, Professional Dark Theme
+
+Adopt a rich dark theme. Use these exact CSS variable names so existing component 
+code still works:
+
+```css
+:root {
+  /* Backgrounds — layered depth */
+  --bg-page:       #0f1117;   /* deepest layer */
+  --bg-surface:    #181b25;   /* cards, panels */
+  --bg-sidebar:    #13161f;   /* left sidebar */
+  --bg-header:     #0d1018;   /* top bar */
+  --bg-code:       #0d1018;   /* code blocks */
+  --bg-muted:      #1e2233;   /* subtle fills */
+  --bg-tag-idle:   #1e2233;
+  --bg-tag-run:    #1a1f3a;
+  --bg-tag-done:   #0e2318;
+
+  /* Borders */
+  --border:        #2a2f45;
+  --border-hover:  #4f5a8a;
+  --border-active: #7c85f5;
+  --border-done:   #34d399;
+
+  /* Text — BRIGHT and readable */
+  --text-primary:   #f0f2ff;   /* near white with cool tint */
+  --text-secondary: #b8bdd8;   /* medium contrast */
+  --text-muted:     #6e7698;   /* subdued */
+  --text-faint:     #3d4468;   /* very subtle */
+
+  /* Accent palette */
+  --accent:         #7c85f5;   /* indigo-violet — primary CTA */
+  --accent-hover:   #9ba4f8;
+  --accent-dark:    #5b63d3;
+  --green:          #34d399;   /* emerald — success */
+  --amber:          #fbbf24;   /* amber — warning */
+  --red:            #f87171;   /* coral red — error */
+
+  /* Tag text */
+  --tag-idle-text:  #6e7698;
+  --tag-run-text:   #a5adfa;
+  --tag-done-text:  #34d399;
+}
+```
+
+### 2. PROGRESS BAR — Bigger, Bolder, More Informative
+
+Increase the progress bar height to **10px**. Add a glowing gradient fill:
+```css
+background: linear-gradient(90deg, #5b63d3, #7c85f5, #a5adfa);
+box-shadow: 0 0 12px rgba(124, 133, 245, 0.6);
+```
+The track background should be `#1e2233`. Round the fill with `border-radius: 6px`.
+Show percentage as a large bold mono number. Make elapsed time and stage count 
+clearly visible with `--text-secondary` color.
+
+### 3. STEPPER SIDEBAR — Dramatic Stage Indicators
+
+- Active stage dot: glowing pulsing ring animation  
+```css
+  box-shadow: 0 0 0 4px rgba(124,133,245,0.2), 0 0 0 8px rgba(124,133,245,0.08);
+  animation: pulse-ring 2s ease infinite;
+```
+- Done stage dot: filled emerald with checkmark, subtle `#34d399` glow
+- Connector line: gradient `#34d399` → `#7c85f5` when stages transition
+- Stage name text: `--text-primary` (#f0f2ff) — very bright and readable
+- Short description: `--text-secondary` (#b8bdd8) — clearly visible, not washed out
+- Selected step: left border `3px solid #7c85f5`, background `rgba(124,133,245,0.08)`
+- Hover state: background `rgba(255,255,255,0.03)`, smooth 150ms transition
+- Stage number label (01—): `--accent` color (#7c85f5) in mono font
+
+### 4. DETAIL PANEL — Rich Output Display
+
+- Panel background: `--bg-muted` (#1e2233)
+- Stage header icon wrapper: larger (48×48px), glowing border  
+```css
+  border: 1px solid rgba(124,133,245,0.3);
+  box-shadow: 0 0 20px rgba(124,133,245,0.1);
+```
+- Stage name: 20px, weight 700, color `--text-primary` (#f0f2ff)
+- Stage description: 13px, color `--text-secondary` (#b8bdd8), line-height 1.7
+- Result table rows: 
+  - Key: `--text-secondary`, 12px
+  - Value: 13px, `--font-mono`, bold — green values `#34d399`, blue `#a5adfa`, amber `#fbbf24`
+  - Row divider: 1px `#2a2f45`
+  - Hover row background: `rgba(255,255,255,0.02)`
+- Output box: background `--bg-surface` (#181b25), border `#2a2f45`, radius 10px
+- Output label: 10px uppercase mono, color `#7c85f5` (accent), letter-spacing 0.1em
+
+### 5. CODE BLOCK — Terminal Aesthetic
+
+- Background: `#0d1018` (near black)
+- Header bar: `#131720` with subtle bottom border `#2a2f45`
+- Font: DM Mono, 12px, line-height 2
+- Colors:
+  - Keywords (`from`, `import`, `def`, `return`): `#a5adfa` (soft indigo)
+  - Strings / docstrings: `#34d399` (emerald)
+  - Comments: `#3d4468` (faint)
+  - Decorators (`@`): `#fbbf24` (amber)
+  - Default text: `#b8bdd8`
+- Add a language badge ("Python") in top-right of code header: 
+  tiny mono pill, `#1a1f3a` bg, `#7c85f5` text, border `#2a2f45`
+- Add copy-to-clipboard button (📋) in code header — top right
+
+### 6. LOG FEED — Live Terminal Stream
+
+- Background: `#0d1018`
+- Each log line: 12px mono, smooth `fadeInDown` animation on append
+- Info lines: icon `›` in `#7c85f5`, text `#b8bdd8`
+- OK lines: icon `✓` in `#34d399`, text `#34d399`, slight background tint 
+  `rgba(52,211,153,0.04)` on the row
+- Warn lines: icon `⚠` in `#fbbf24`, text `#fbbf24`
+- Err lines: icon `✕` in `#f87171`, text `#f87171`
+- Header: "AGENT LOG" in 10px mono uppercase, `#6e7698`, right-side event count 
+  in accent color pill
+- Max height 200px with smooth scroll
+- Add a subtle scanline/grain effect using a CSS pseudo-element overlay
+
+### 7. HEADER — Polished Command Bar
+
+- Background: `#0d1018` with a 1px bottom border `rgba(124,133,245,0.15)`
+- Add a very subtle horizontal gradient overlay: 
+  `linear-gradient(90deg, rgba(124,133,245,0.03) 0%, transparent 60%)`
+- Title: 15px, weight 700, `#f0f2ff`
+- Subtitle: 10px mono, `#3d4468`, letter-spacing 0.08em
+- Status chips:
+  - Idle: `#1e2233` bg, `#6e7698` text, border `#2a2f45`
+  - Running: `#1a1f3a` bg, `#a5adfa` text, border `rgba(124,133,245,0.4)`, 
+    pulsing dot animation
+  - Done: `#0e2318` bg, `#34d399` text, border `rgba(52,211,153,0.35)`
+- Execute button: gradient `linear-gradient(135deg, #5b63d3, #7c85f5)`, 
+  white text, subtle glow on hover `box-shadow: 0 4px 20px rgba(124,133,245,0.4)`
+- Reset button: transparent, border `#2a2f45`, text `#6e7698`, 
+  hover → border `#7c85f5`, text `#b8bdd8`
+- Speed selector: dark bg, mono font, accent-colored text
+
+### 8. RUNNING STATE — Active Execution Feedback
+
+- Running state card in DetailPanel: gradient border animation
+```css
+  background: linear-gradient(135deg, rgba(124,133,245,0.08), rgba(52,211,153,0.04));
+  border: 1px solid rgba(124,133,245,0.3);
+```
+- Spinner: dual-ring with accent color
+- "X is running…" text: `#a5adfa`, 14px, weight 500
+
+### 9. EMPTY STATE (Waiting)
+
+- Icon: 40px, `#1e2233` background circle, emoji centered
+- Title: `#b8bdd8`, 14px bold
+- Body text: `#6e7698`, 12px, max-width 260px
+- Subtle dashed border box `border: 1px dashed #2a2f45`
+
+### 10. ANIMATIONS
+
+Add these global keyframes to `index.css`:
+```css
+@keyframes pulse-ring {
+  0%   { box-shadow: 0 0 0 0px rgba(124,133,245,0.4); }
+  70%  { box-shadow: 0 0 0 8px rgba(124,133,245,0); }
+  100% { box-shadow: 0 0 0 0px rgba(124,133,245,0); }
+}
+@keyframes fade-in-down {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes glow-bar {
+  0%, 100% { box-shadow: 0 0 8px rgba(124,133,245,0.5); }
+  50%       { box-shadow: 0 0 18px rgba(124,133,245,0.9); }
+}
+```
+
+---
+
+## DELIVERABLES
+
+Produce the COMPLETE updated file set — every file that changes must be output 
+in full. Do not truncate any file. Output files in this order:
+
+1. `src/index.css` — updated CSS variables + new keyframes
+2. `src/components/Header.module.css`
+3. `src/components/ProgressBar.module.css`  
+4. `src/components/Stepper.module.css`
+5. `src/components/DetailPanel.module.css`
+6. `src/components/LogFeed.module.css`
+7. `src/components/DetailPanel.jsx` — updated with copy button + Python badge
+8. `src/components/LogFeed.jsx` — updated with fade-in-down animation per line
+
+For each file, wrap it in a code block with the filename as a comment on line 1.
+After all files, provide a brief "Design Decisions" section explaining the 3 most 
+impactful choices you made and why.
+
+The final result must feel like a premium internal tool at a tier-1 tech company — 
+not a generic dashboard template. Every pixel intentional.
