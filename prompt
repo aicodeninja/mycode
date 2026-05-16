@@ -1,229 +1,340 @@
-You are a senior UX Architect and Frontend Engineer with deep expertise in 
-enterprise dashboard design, data pipeline visualization, and design systems.
+You are a senior AI engineer and software architect with deep expertise in 
+LangGraph, FastAPI, multi-agent systems, LLM prompt engineering, and 
+production Python development. I am giving you access to my complete 
+repository. Your job is to perform an exhaustive, senior-level code and 
+architecture review.
 
-## CONTEXT — What you are building
+═══════════════════════════════════════════════════════════
+STEP 1 — REPO EXPLORATION (do this before any analysis)
+═══════════════════════════════════════════════════════════
 
-This is a React-based AI Pipeline Dashboard called "Postpay → Prepay Converter".
-It is a 4-stage sequential AI agent orchestration tool that converts SAS postpay 
-queries into prepay edits. The UI uses a Stepper + Detail Panel layout:
+Before writing a single observation, traverse the entire repository 
+systematically. Do not skip any file or folder.
 
-- LEFT SIDEBAR: Vertical stepper showing 4 pipeline stages with status dots, 
-  connector lines, stage name, short description, and a status badge 
-  (Waiting / Running / Complete)
-- RIGHT PANEL: Detail panel showing selected stage's full description, output 
-  result table, optional code snippet block, and a live log feed
-- TOP HEADER: Dark (#1c1f2e) bar with title, status chip, speed selector, 
-  Reset and Execute buttons
-- PROGRESS BAR: Thin strip below header showing % completion, stage count, elapsed time
+Walk through in this exact order:
+1. Read the root directory listing
+2. Read every config file: pyproject.toml / setup.py / requirements.txt / 
+   .env.example / Dockerfile / docker-compose.yml / Makefile (if present)
+3. Read the FastAPI entrypoint (main.py or app.py or wherever the app is 
+   initialised)
+4. Read every file inside the /agents folder — one by one, fully
+5. Read every router, service, schema, model, utility, and middleware file
+6. Read any LangGraph graph definition files (graph.py, workflow.py, etc.)
+7. Read any prompt files, prompt templates, or places where prompts are 
+   constructed (strings, .txt files, Jinja templates, prompt builder 
+   functions — wherever they live)
+8. Read any test files
+9. Read any CI/CD config (.github/workflows, etc.)
 
-The 4 pipeline stages are:
-1. Query Analyzer — parses SAS file, extracts fields/tables/business logic
-2. Field Mapper — maps source fields to WGS target schema with confidence scores  
-3. Logic Converter — converts SAS logic to Python code + REST API endpoints
-4. Test Orchestrator — runs tests, calculates performance metrics
+For each file you read, output a one-line acknowledgement:
+  ✓ Read: <filepath> — <5-word summary of what it does>
 
-Tech stack: React 18, CSS Modules, Vite, DM Sans + DM Mono fonts (Google Fonts).
-No external UI library — pure CSS Modules only.
+Do not start analysis until you have confirmed you have read every file. 
+If you are unsure whether you have seen everything, list the directory 
+again and check.
 
----
+═══════════════════════════════════════════════════════════
+STEP 2 — STRUCTURAL UNDERSTANDING SUMMARY
+═══════════════════════════════════════════════════════════
 
-## YOUR TASK — Full UI/UX Redesign
+After reading everything, produce a structured summary in this format:
 
-Redesign the ENTIRE visual layer of this dashboard with the following mandatory 
-requirements. Think like a UX Architect who designs tools for senior engineers 
-and data teams at a telecom company.
+**Application overview**
+One paragraph describing what this application does end-to-end, from 
+API request to final agent output.
 
-### 1. COLOR SYSTEM — High Contrast, Professional Dark Theme
+**Agent inventory**
+For each of the 4 agents, document:
+- Agent name and file location
+- Purpose: what task does this agent own?
+- Tools it uses (if any)
+- LLM it calls and how (direct call / LangGraph node / tool call)
+- Input it receives and output it produces
+- How it connects to other agents (upstream / downstream)
 
-Adopt a rich dark theme. Use these exact CSS variable names so existing component 
-code still works:
+**LangGraph graph structure**
+- Type of graph: StateGraph, MessageGraph, or custom
+- List every node and what it maps to
+- List every edge and conditional edge
+- Entry point and possible end points
+- Shared state schema (what fields, what types)
 
-```css
-:root {
-  /* Backgrounds — layered depth */
-  --bg-page:       #0f1117;   /* deepest layer */
-  --bg-surface:    #181b25;   /* cards, panels */
-  --bg-sidebar:    #13161f;   /* left sidebar */
-  --bg-header:     #0d1018;   /* top bar */
-  --bg-code:       #0d1018;   /* code blocks */
-  --bg-muted:      #1e2233;   /* subtle fills */
-  --bg-tag-idle:   #1e2233;
-  --bg-tag-run:    #1a1f3a;
-  --bg-tag-done:   #0e2318;
+**FastAPI surface**
+- List every route: method, path, what it triggers
+- Request/response schemas used
+- How the graph is invoked from the API layer
+- Any background tasks, streaming, or websocket usage
 
-  /* Borders */
-  --border:        #2a2f45;
-  --border-hover:  #4f5a8a;
-  --border-active: #7c85f5;
-  --border-done:   #34d399;
+**Data flow diagram (text)**
+Draw a plain-text flow:
+  HTTP request → router → [agent 1] → [agent 2] → ... → response
 
-  /* Text — BRIGHT and readable */
-  --text-primary:   #f0f2ff;   /* near white with cool tint */
-  --text-secondary: #b8bdd8;   /* medium contrast */
-  --text-muted:     #6e7698;   /* subdued */
-  --text-faint:     #3d4468;   /* very subtle */
+═══════════════════════════════════════════════════════════
+STEP 3 — DEEP ANALYSIS (address every point below)
+═══════════════════════════════════════════════════════════
 
-  /* Accent palette */
-  --accent:         #7c85f5;   /* indigo-violet — primary CTA */
-  --accent-hover:   #9ba4f8;
-  --accent-dark:    #5b63d3;
-  --green:          #34d399;   /* emerald — success */
-  --amber:          #fbbf24;   /* amber — warning */
-  --red:            #f87171;   /* coral red — error */
+Go through each dimension below. For every finding, use this format:
 
-  /* Tag text */
-  --tag-idle-text:  #6e7698;
-  --tag-run-text:   #a5adfa;
-  --tag-done-text:  #34d399;
-}
-```
+  📍 Location: <file>:<line or function name>
+  🔍 Observation: <what you found>
+  ⚠️  Severity: Critical / High / Medium / Low / Suggestion
+  ✅ Fix: <specific, concrete fix with example code where possible>
 
-### 2. PROGRESS BAR — Bigger, Bolder, More Informative
+── 3.1 HOW THE CODE IS WRITTEN ──────────────────────────
 
-Increase the progress bar height to **10px**. Add a glowing gradient fill:
-```css
-background: linear-gradient(90deg, #5b63d3, #7c85f5, #a5adfa);
-box-shadow: 0 0 12px rgba(124, 133, 245, 0.6);
-```
-The track background should be `#1e2233`. Round the fill with `border-radius: 6px`.
-Show percentage as a large bold mono number. Make elapsed time and stage count 
-clearly visible with `--text-secondary` color.
+Review the overall coding style and patterns:
+- Is there a consistent coding style (PEP8, type hints, docstrings)?
+- Are classes used where they should be, or is everything procedural?
+- Is async used correctly throughout (no blocking calls inside async 
+  functions, proper await chains)?
+- Are LangGraph nodes written as clean, single-responsibility functions?
+- Is state mutation done safely (no shared mutable globals)?
+- Are there any anti-patterns specific to LangGraph 
+  (e.g. modifying state outside nodes, incorrect reducer usage)?
+- Are FastAPI dependencies used correctly (Depends, lifespan)?
 
-### 3. STEPPER SIDEBAR — Dramatic Stage Indicators
+── 3.2 SUGGESTIONS AND IMPROVEMENTS ─────────────────────
 
-- Active stage dot: glowing pulsing ring animation  
-```css
-  box-shadow: 0 0 0 4px rgba(124,133,245,0.2), 0 0 0 8px rgba(124,133,245,0.08);
-  animation: pulse-ring 2s ease infinite;
-```
-- Done stage dot: filled emerald with checkmark, subtle `#34d399` glow
-- Connector line: gradient `#34d399` → `#7c85f5` when stages transition
-- Stage name text: `--text-primary` (#f0f2ff) — very bright and readable
-- Short description: `--text-secondary` (#b8bdd8) — clearly visible, not washed out
-- Selected step: left border `3px solid #7c85f5`, background `rgba(124,133,245,0.08)`
-- Hover state: background `rgba(255,255,255,0.03)`, smooth 150ms transition
-- Stage number label (01—): `--accent` color (#7c85f5) in mono font
+For each agent and each FastAPI component:
+- What specific lines or patterns are suboptimal?
+- Where is there repeated code that should be abstracted?
+- Where are there missing abstractions (things that should be a class, 
+  a helper, or a utility)?
+- What Python standard library or well-known library features are being 
+  reinvented?
+- Are responses structured and typed properly, or returned as raw dicts?
 
-### 4. DETAIL PANEL — Rich Output Display
+── 3.3 ARCHITECTURE IMPROVEMENTS ────────────────────────
 
-- Panel background: `--bg-muted` (#1e2233)
-- Stage header icon wrapper: larger (48×48px), glowing border  
-```css
-  border: 1px solid rgba(124,133,245,0.3);
-  box-shadow: 0 0 20px rgba(124,133,245,0.1);
-```
-- Stage name: 20px, weight 700, color `--text-primary` (#f0f2ff)
-- Stage description: 13px, color `--text-secondary` (#b8bdd8), line-height 1.7
-- Result table rows: 
-  - Key: `--text-secondary`, 12px
-  - Value: 13px, `--font-mono`, bold — green values `#34d399`, blue `#a5adfa`, amber `#fbbf24`
-  - Row divider: 1px `#2a2f45`
-  - Hover row background: `rgba(255,255,255,0.02)`
-- Output box: background `--bg-surface` (#181b25), border `#2a2f45`, radius 10px
-- Output label: 10px uppercase mono, color `#7c85f5` (accent), letter-spacing 0.1em
+Evaluate the overall system design:
+- Is the separation between FastAPI and LangGraph clean? 
+  (API layer should not contain agent logic)
+- Is there a service layer between routes and the graph, or is the graph 
+  called directly from route handlers?
+- Should any agents be merged (doing too little) or split 
+  (doing too much)?
+- Is the graph topology optimal for the use case, or would a different 
+  structure (parallel fan-out, map-reduce, supervisor pattern, 
+  hierarchical agents) perform better?
+- Is state designed correctly — are fields typed with Annotated reducers 
+  where needed, or is there silent state overwrite happening?
+- Is there a better way to wire agent handoffs for this specific use case?
+- Would introducing a shared tool registry, a central agent factory, or 
+  a dependency injection pattern improve maintainability?
 
-### 5. CODE BLOCK — Terminal Aesthetic
+── 3.4 BEST PRACTICES ───────────────────────────────────
 
-- Background: `#0d1018` (near black)
-- Header bar: `#131720` with subtle bottom border `#2a2f45`
-- Font: DM Mono, 12px, line-height 2
-- Colors:
-  - Keywords (`from`, `import`, `def`, `return`): `#a5adfa` (soft indigo)
-  - Strings / docstrings: `#34d399` (emerald)
-  - Comments: `#3d4468` (faint)
-  - Decorators (`@`): `#fbbf24` (amber)
-  - Default text: `#b8bdd8`
-- Add a language badge ("Python") in top-right of code header: 
-  tiny mono pill, `#1a1f3a` bg, `#7c85f5` text, border `#2a2f45`
-- Add copy-to-clipboard button (📋) in code header — top right
+Check against industry best practices for each layer:
 
-### 6. LOG FEED — Live Terminal Stream
+FastAPI:
+- Lifespan context manager used for startup/shutdown (not @app.on_event)?
+- Pydantic v2 models used (not v1 style)?
+- Dependency injection for DB, config, auth?
+- Exception handlers registered globally?
+- CORS, rate limiting, and request ID middleware present?
 
-- Background: `#0d1018`
-- Each log line: 12px mono, smooth `fadeInDown` animation on append
-- Info lines: icon `›` in `#7c85f5`, text `#b8bdd8`
-- OK lines: icon `✓` in `#34d399`, text `#34d399`, slight background tint 
-  `rgba(52,211,153,0.04)` on the row
-- Warn lines: icon `⚠` in `#fbbf24`, text `#fbbf24`
-- Err lines: icon `✕` in `#f87171`, text `#f87171`
-- Header: "AGENT LOG" in 10px mono uppercase, `#6e7698`, right-side event count 
-  in accent color pill
-- Max height 200px with smooth scroll
-- Add a subtle scanline/grain effect using a CSS pseudo-element overlay
+LangGraph:
+- Graph compiled once at startup, not per request?
+- Checkpointer configured (MemorySaver for dev, PostgresSaver for prod)?
+- Interrupt-before / interrupt-after used for human-in-the-loop steps?
+- Thread IDs used for stateful multi-turn conversations?
+- Streaming (astream_events) used where appropriate?
 
-### 7. HEADER — Polished Command Bar
+Agents:
+- Each agent has a single responsibility?
+- System prompts separated from agent logic (not hardcoded inline)?
+- Structured output (with_structured_output) used where the agent 
+  must return a typed result?
+- Tool schemas documented with descriptions (LLM reads these)?
+- Retry logic on LLM calls?
 
-- Background: `#0d1018` with a 1px bottom border `rgba(124,133,245,0.15)`
-- Add a very subtle horizontal gradient overlay: 
-  `linear-gradient(90deg, rgba(124,133,245,0.03) 0%, transparent 60%)`
-- Title: 15px, weight 700, `#f0f2ff`
-- Subtitle: 10px mono, `#3d4468`, letter-spacing 0.08em
-- Status chips:
-  - Idle: `#1e2233` bg, `#6e7698` text, border `#2a2f45`
-  - Running: `#1a1f3a` bg, `#a5adfa` text, border `rgba(124,133,245,0.4)`, 
-    pulsing dot animation
-  - Done: `#0e2318` bg, `#34d399` text, border `rgba(52,211,153,0.35)`
-- Execute button: gradient `linear-gradient(135deg, #5b63d3, #7c85f5)`, 
-  white text, subtle glow on hover `box-shadow: 0 4px 20px rgba(124,133,245,0.4)`
-- Reset button: transparent, border `#2a2f45`, text `#6e7698`, 
-  hover → border `#7c85f5`, text `#b8bdd8`
-- Speed selector: dark bg, mono font, accent-colored text
+── 3.5 CODE QUALITY ─────────────────────────────────────
 
-### 8. RUNNING STATE — Active Execution Feedback
+- Are there functions longer than 40 lines that should be broken up?
+- Are there deeply nested conditionals (more than 3 levels) that should 
+  be flattened with early returns?
+- Are there magic strings or magic numbers that should be constants or 
+  config values?
+- Are exceptions caught too broadly (bare except or except Exception) 
+  masking real errors?
+- Are there missing null/None checks where None could propagate silently?
+- Is logging used, and is it structured (JSON) or plain print statements?
+- Are there any circular imports?
+- Are type hints complete, or are there untyped function signatures?
 
-- Running state card in DetailPanel: gradient border animation
-```css
-  background: linear-gradient(135deg, rgba(124,133,245,0.08), rgba(52,211,153,0.04));
-  border: 1px solid rgba(124,133,245,0.3);
-```
-- Spinner: dual-ring with accent color
-- "X is running…" text: `#a5adfa`, 14px, weight 500
+── 3.6 NEW IMPLEMENTATIONS TO IMPROVE QUALITY ───────────
 
-### 9. EMPTY STATE (Waiting)
+Suggest concrete additions that would meaningfully improve the codebase.
+For each suggestion, explain:
+- What to add
+- Where it goes
+- What problem it solves
+- A minimal code example
 
-- Icon: 40px, `#1e2233` background circle, emoji centered
-- Title: `#b8bdd8`, 14px bold
-- Body text: `#6e7698`, 12px, max-width 260px
-- Subtle dashed border box `border: 1px dashed #2a2f45`
+Consider suggesting (only where genuinely applicable):
+- LangSmith tracing integration for observability
+- A BaseAgent abstract class to standardise agent structure
+- Pydantic Settings for config management
+- A retry decorator using tenacity for LLM calls
+- Structured logging with structlog or python-json-logger
+- A health check endpoint that verifies graph compilation
+- Background task queue (Celery / ARQ) if any agent runs long
+- Streaming endpoint (StreamingResponse + astream_events) 
+  if not already present
+- Response caching for deterministic agent calls
 
-### 10. ANIMATIONS
+── 3.7 DEAD CODE ────────────────────────────────────────
 
-Add these global keyframes to `index.css`:
-```css
-@keyframes pulse-ring {
-  0%   { box-shadow: 0 0 0 0px rgba(124,133,245,0.4); }
-  70%  { box-shadow: 0 0 0 8px rgba(124,133,245,0); }
-  100% { box-shadow: 0 0 0 0px rgba(124,133,245,0); }
-}
-@keyframes fade-in-down {
-  from { opacity: 0; transform: translateY(-4px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-@keyframes glow-bar {
-  0%, 100% { box-shadow: 0 0 8px rgba(124,133,245,0.5); }
-  50%       { box-shadow: 0 0 18px rgba(124,133,245,0.9); }
-}
-```
+Identify:
+- Imported modules that are never used
+- Functions or classes defined but never called
+- Graph nodes registered but never connected
+- Routes defined but never reachable
+- Variables assigned but never read
+- Commented-out code blocks that should be removed
+- Config values loaded but never consumed
 
----
+For each: file, line range, and whether it is safe to delete.
 
-## DELIVERABLES
+── 3.8 LOOPHOLES AND BUGS ───────────────────────────────
 
-Produce the COMPLETE updated file set — every file that changes must be output 
-in full. Do not truncate any file. Output files in this order:
+Identify potential failure modes:
+- What happens if an LLM returns output in an unexpected format? 
+  Is there output parsing with error handling, or will it crash?
+- What happens if an agent tool call fails? Is there a fallback?
+- What happens if the LangGraph graph enters an infinite loop 
+  (no recursion_limit set)?
+- Are there race conditions if two requests run the graph concurrently 
+  and share state?
+- What happens on a malformed API request — is input validation tight?
+- Are there SQL injection, prompt injection, or SSRF risks?
+- Are secrets ever logged or exposed in error responses?
+- Are there missing timeouts on external calls?
 
-1. `src/index.css` — updated CSS variables + new keyframes
-2. `src/components/Header.module.css`
-3. `src/components/ProgressBar.module.css`  
-4. `src/components/Stepper.module.css`
-5. `src/components/DetailPanel.module.css`
-6. `src/components/LogFeed.module.css`
-7. `src/components/DetailPanel.jsx` — updated with copy button + Python badge
-8. `src/components/LogFeed.jsx` — updated with fade-in-down animation per line
+── 3.9 ARCHITECTURE AND CODE IMPROVEMENTS ───────────────
 
-For each file, wrap it in a code block with the filename as a comment on line 1.
-After all files, provide a brief "Design Decisions" section explaining the 3 most 
-impactful choices you made and why.
+Based on everything you have seen, design an improved target architecture.
+Describe:
+- The ideal folder structure for this project at production scale
+- How to separate concerns: API / graph / agents / tools / schemas / 
+  config / tests
+- Whether a monorepo or microservice split makes sense for 4 agents
+- How to make each agent independently testable
+- How to version the API and the agents independently
+- How to handle agent configuration (prompts, model, temperature) 
+  as data, not code
 
-The final result must feel like a premium internal tool at a tier-1 tech company — 
-not a generic dashboard template. Every pixel intentional.
+── 3.10 INDUSTRY-GRADE DEVELOPMENT ─────────────────────
+
+Evaluate and advise on:
+- Is there a proper test pyramid (unit → integration → e2e)?
+- Is there a CI pipeline, and does it run tests and linting?
+- Are there pre-commit hooks (ruff, mypy, black)?
+- Is the Docker setup production-ready 
+  (multi-stage build, non-root user, health check)?
+- Is there a proper logging and alerting strategy?
+- Is there API documentation (OpenAPI tags, descriptions, examples)?
+- Is there a CHANGELOG or versioning strategy?
+- Is there a README that explains how to run the system locally and 
+  in production?
+
+── 3.11 PROMPT QUALITY AND MANAGEMENT ──────────────────
+
+This is critical for an LLM application. Review every prompt thoroughly:
+
+For each prompt found (system prompt, human prompt template, 
+tool description, few-shot example):
+  📍 Location: <file and variable/function name>
+  📝 Current prompt: (paste or summarise it)
+  🔍 Issues found:
+     - Is the role clearly established in the system prompt?
+     - Are the instructions specific and unambiguous?
+     - Is the output format explicitly specified?
+     - Are there edge cases the prompt does not handle?
+     - Is the prompt too long (could be compressed)?
+     - Is the prompt too short (missing constraints or context)?
+     - Are few-shot examples present where they would help?
+     - Is the prompt robust to unexpected user inputs?
+  ✅ Improved prompt: (write the improved version in full)
+
+Also evaluate how prompts are managed:
+- Are prompts hardcoded inline in Python files? 
+  (bad — they should be in separate .txt, .yaml, or a prompt registry)
+- Is there a prompt versioning strategy?
+- Are prompts parameterised cleanly (f-string, Jinja2, LangChain 
+  PromptTemplate)?
+- Are different prompt variants (for different models or use cases) 
+  manageable without code changes?
+- Suggest a prompt management pattern appropriate for this codebase's 
+  scale, with a concrete folder structure and loading example.
+
+═══════════════════════════════════════════════════════════
+STEP 4 — PRIORITISED ACTION PLAN
+═══════════════════════════════════════════════════════════
+
+After completing all analysis, produce a prioritised list of everything 
+to fix or improve, grouped by effort and impact:
+
+🔴 DO FIRST (Critical bugs or security issues — fix before any release)
+   1. ...
+   2. ...
+
+🟠 DO SOON (High-impact improvements — within the next sprint)
+   1. ...
+   2. ...
+
+🟡 DO NEXT (Medium improvements — next 2–4 weeks)
+   1. ...
+   2. ...
+
+🟢 NICE TO HAVE (Low-effort polish or future-proofing)
+   1. ...
+   2. ...
+
+For each item include: what, where, why, and an effort estimate 
+(S = hours, M = 1–2 days, L = 3–5 days).
+
+═══════════════════════════════════════════════════════════
+STEP 5 — IDEAL TARGET FOLDER STRUCTURE
+═══════════════════════════════════════════════════════════
+
+Based on the analysis, output the ideal production folder structure for 
+this project, with a one-line comment on every file explaining its role:
+
+  my-agent-app/
+  ├── app/
+  │   ├── api/
+  │   │   ├── v1/
+  │   │   │   ├── routes/
+  │   │   │   └── ...
+  │   ├── agents/
+  │   │   └── ...
+  │   ├── graph/
+  │   │   └── ...
+  │   ├── tools/
+  │   ├── prompts/
+  │   ├── schemas/
+  │   ├── config/
+  │   └── core/
+  ├── tests/
+  ├── prompts/    ← if prompts live outside app/
+  └── ...
+
+Then explain the reasoning behind each top-level grouping.
+
+═══════════════════════════════════════════════════════════
+IMPORTANT OUTPUT RULES
+═══════════════════════════════════════════════════════════
+
+- Do not hallucinate code that does not exist in the repo. 
+  Every observation must reference an actual file and line.
+- If you are uncertain about something, say so explicitly rather 
+  than guessing.
+- Do not truncate your output. This is a full review — 
+  cover every point completely.
+- Write improved code snippets in Python with type hints.
+- When you suggest a structural change, show both the before and 
+  the after.
+- Keep your tone direct and specific — avoid vague advice like 
+  "consider improving error handling". 
+  Always say exactly what to add, remove, or change.
